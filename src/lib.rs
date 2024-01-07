@@ -20,7 +20,7 @@ pub use error::YawlError;
 
 const MAX_TX_LEN: usize = 1232;
 
-#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum YawlResult {
     /// The transaction was successful and contains the signature of the transaction.
     Success(Signature),
@@ -58,6 +58,14 @@ impl YawlResult {
         }
     }
 
+    /// Parses the YawFailedTransaction from a failure or returns None if the result is a success.
+    pub fn failed_transaction(&self) -> Option<YawlFailedTransaction> {
+        match self {
+            YawlResult::Success(_) => None,
+            YawlResult::Failure(f) => Some(f.clone()),
+        }
+    }
+
     /// Parses the signature from a success or returns None if the result is a failure.
     pub fn signature(&self) -> Option<String> {
         match self {
@@ -67,7 +75,7 @@ impl YawlResult {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct YawlFailedTransaction {
     pub message: Message,
     pub error: String,
